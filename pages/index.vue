@@ -8,7 +8,9 @@
       class="board-content"
       handle=".handle"
       filter="textarea"
+      animation="0"
       :prevent-on-filter= "false"
+      :delay-on-touch-only="true"
       @start="drag=true"
       @end="drag=false"
       @change="handleNotesChange"
@@ -21,7 +23,7 @@
         >
           <img class="note-icon-close" src="~assets/icons/close.svg" />
         </div>
-        <div class="note_cnt">
+        <div class="note_cnt handle">
           <textarea
             ref="textarea"
             :value="note.description"
@@ -171,6 +173,15 @@ body {
   right: 0;
   margin: 0 24px 24px 0;
   z-index: 99;
+}
+
+.flip-list-move {
+  transition: transform 0.5s;
+}
+
+.ghost {
+  opacity: 0.2;
+  background: #c8ebfb;
 }
 
 .note {
