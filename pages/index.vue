@@ -13,14 +13,14 @@
       @end="drag=false" @change="handleNotesChange"
     >
       <div v-for="(note, index) in clientNotes" :key="index" class="note handle">
-        <div class="note-close" @click="handleRemoveNote(index)">
+        <div class="note-close handle" @click="handleRemoveNote(index)">
           <img class="note-icon-close" src="~assets/icons/close.svg" />
         </div>
-        <div class="note_cnt">
+        <div class="note_cnt handle">
           <textarea
             ref="textarea"
             :value="note.description"
-            class="cnt textarea-transition"
+            class="cnt textarea-transition handle"
             placeholder="Tambahkan catatan anda"
             @input="event => {
               handleInput(event, index);
@@ -31,7 +31,7 @@
         </div>
       </div>
     </VueDraggable>
-    <div class="board-button" @click="handleAddNote">
+    <div class="board-button handle" @click="handleAddNote">
       <img class="note-icon-plus" src="~assets/icons/plus.svg" />
     </div>
   </div>
