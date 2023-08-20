@@ -5,17 +5,20 @@
     </div>
     <VueDraggable
       v-model="clientNotes"
+      v-bind="dragOptions"
       class="board-content"
       handle=".handle"
-      filter="textarea"
-      animation="0"
-      :prevent-on-filter= "false"
-      :delay-on-touch-only="true"
+      :move="onMove" 
+      tag="div"
       @start="drag=true"
       @end="drag=false"
       @change="handleNotesChange"
     >
-      <div v-for="(note, index) in clientNotes" :key="index" class="note handle">
+      <div
+        v-for="(note, index) in clientNotes"
+        :key="index"
+        class="note handle"
+      >
         <div
           class="note-close"
           @click="handleRemoveNote(index)"
@@ -27,7 +30,7 @@
           <textarea
             ref="textarea"
             :value="note.description"
-            class="cnt textarea-transition"
+            class="cnt textarea-transition handle"
             placeholder="Tambahkan catatan anda"
             @input="event => {
               handleInput(event, index);
@@ -38,7 +41,11 @@
         </div>
       </div>
     </VueDraggable>
-    <div class="board-button" @click="handleAddNote" @touchstart="handleAddNote">
+    <div
+      class="board-button"
+      @click="handleAddNote"
+      @touchstart="handleAddNote"
+    >
       <img class="note-icon-plus" src="~assets/icons/plus.svg" />
     </div>
   </div>
@@ -59,7 +66,15 @@ export default {
   computed: {
     ...mapState('notes', {
       notes: state => state.notes
-    })
+    }),  
+    dragOptions() {
+      return {
+        // filter: "textarea",
+        animation: 0,
+        preventOnFilter: false,
+        ghostClass: "ghost"
+      };
+    },
   },
   mounted() {
     this.clientNotes = this.notes
@@ -119,6 +134,13 @@ export default {
     getIconPath(iconName) {
       return require(`@/assets/icons/${iconName}`);
     },
+    onMove({ relatedContext, draggedContext }) {
+      const relatedElement = relatedContext.element;
+      const draggedElement = draggedContext.element;
+      return (
+        (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed
+      );
+    }
   },
 }
 </script>
@@ -175,12 +197,8 @@ body {
   z-index: 99;
 }
 
-.flip-list-move {
-  transition: transform 0.5s;
-}
-
 .ghost {
-  opacity: 0.2;
+  opacity: 0.75;
   background: #c8ebfb;
 }
 
