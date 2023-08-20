@@ -28,7 +28,7 @@
         <div class="note_cnt handle">
           <textarea
             ref="textarea"
-            class="cnt textarea-transition"
+            class="cnt textarea-transition item"
             placeholder="Tambahkan catatan anda"
             :value="note.description"
             @input="event => {
@@ -68,8 +68,9 @@ export default {
     }),  
     dragOptions() {
       return {
-        animation: 0,
-        // filter: 'textarea',
+        animation: 250,
+        draggable: '.item',
+        filter: 'textarea',
         ghostClass: 'ghost',
         preventOnFilter: false,
       };
