@@ -17,4 +17,5 @@ jobs:
       - run: npm run build
       - uses: peaceiris/actions-gh-pages@v3
         with:
+          deploy_key: ${{ secrets.DEPLOY_KEY }} # Use your own secret name here
           publish_dir: dist
