@@ -162,7 +162,8 @@ body {
   position: absolute;
   bottom: 0;
   right: 0;
-  margin: 0 32px 48px 0;
+  margin: 0 24px 24px 0;
+  z-index: 99;
 }
 
 .note {
@@ -238,14 +239,14 @@ body {
 }
 
 .note-icon-plus {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   color: white;
 }
 
 @media only screen and (max-width: 768px) {
   .board {
-    padding: 24px;
+    padding: 24px 24px 64px 24px;
   }
 
   .board-title {
