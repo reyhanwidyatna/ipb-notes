@@ -6,11 +6,13 @@
     <VueDraggable
       v-model="clientNotes"
       class="board-content"
+      handle=".handle"
+      filter= "input"
+      :prevent-on-filter= "false"
       @start="drag=true"
-      @end="drag=false"
-      @change="handleNotesChange"
+      @end="drag=false" @change="handleNotesChange"
     >
-      <div v-for="(note, index) in clientNotes" :key="index" class="note">
+      <div v-for="(note, index) in clientNotes" :key="index" class="note handle">
         <div class="note-close" @click="handleRemoveNote(index)">
           <img class="note-icon-close" src="~assets/icons/close.svg" />
         </div>
