@@ -8,8 +8,7 @@
       v-bind="dragOptions"
       class="board-content"
       handle=".handle"
-      :move="onMove" 
-      tag="div"
+      :move="onMove"
       @start="drag=true"
       @end="drag=false"
       @change="handleNotesChange"
@@ -29,9 +28,9 @@
         <div class="note_cnt handle">
           <textarea
             ref="textarea"
-            :value="note.description"
-            class="cnt textarea-transition handle"
+            class="cnt textarea-transition"
             placeholder="Tambahkan catatan anda"
+            :value="note.description"
             @input="event => {
               handleInput(event, index);
               handleUpdateDescription(index, event.target.value);
@@ -44,7 +43,6 @@
     <div
       class="board-button"
       @click="handleAddNote"
-      @touchstart="handleAddNote"
     >
       <img class="note-icon-plus" src="~assets/icons/plus.svg" />
     </div>
@@ -52,6 +50,7 @@
 </template>
 
 <script>
+import debounce from 'lodash/debounce';
 import { mapState, mapMutations } from "vuex";
 
 export default {
@@ -69,10 +68,10 @@ export default {
     }),  
     dragOptions() {
       return {
-        // filter: "textarea",
         animation: 0,
+        // filter: 'textarea',
+        ghostClass: 'ghost',
         preventOnFilter: false,
-        ghostClass: "ghost"
       };
     },
   },
@@ -93,11 +92,14 @@ export default {
       };
       this.addNote(newNote);
     },
-    handleRemoveNote(index) {
+    handleRemoveNote: debounce(function (index) {
       if (index >= 0 && index < this.notes.length) {
         this.removeNote(index);
       }
-    },
+    }, 200, {
+      leading: true,
+      trailing: false,
+    }),
     handleNotesChange() {
       this.updateNotesOrder(this.clientNotes);
     },
@@ -131,16 +133,13 @@ export default {
         this.adjustTextarea(index);
       }
     },
-    getIconPath(iconName) {
-      return require(`@/assets/icons/${iconName}`);
-    },
     onMove({ relatedContext, draggedContext }) {
       const relatedElement = relatedContext.element;
       const draggedElement = draggedContext.element;
       return (
         (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed
       );
-    }
+    },
   },
 }
 </script>
