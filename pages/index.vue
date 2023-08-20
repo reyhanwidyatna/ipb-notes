@@ -8,20 +8,24 @@
       class="board-content"
       handle=".handle"
       filter="textarea"
-      :animation="300"
       :prevent-on-filter= "false"
       @start="drag=true"
-      @end="drag=false" @change="handleNotesChange"
+      @end="drag=false"
+      @change="handleNotesChange"
     >
       <div v-for="(note, index) in clientNotes" :key="index" class="note handle">
-        <div class="note-close handle" @click="handleRemoveNote(index)">
+        <div
+          class="note-close"
+          @click="handleRemoveNote(index)"
+          @touchstart="handleRemoveNote(index)"
+        >
           <img class="note-icon-close" src="~assets/icons/close.svg" />
         </div>
-        <div class="note_cnt handle">
+        <div class="note_cnt">
           <textarea
             ref="textarea"
             :value="note.description"
-            class="cnt textarea-transition handle"
+            class="cnt textarea-transition"
             placeholder="Tambahkan catatan anda"
             @input="event => {
               handleInput(event, index);
@@ -32,7 +36,7 @@
         </div>
       </div>
     </VueDraggable>
-    <div class="board-button handle" @click="handleAddNote">
+    <div class="board-button" @click="handleAddNote" @touchstart="handleAddNote">
       <img class="note-icon-plus" src="~assets/icons/plus.svg" />
     </div>
   </div>
