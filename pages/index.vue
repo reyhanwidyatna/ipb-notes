@@ -25,10 +25,11 @@
         >
           <img class="note-icon-close" src="~assets/icons/close.svg" />
         </div>
-        <div class="note_cnt handle">
+        <div class="note-header handle"></div>
+        <div class="note-content">
           <textarea
             ref="textarea"
-            class="cnt textarea-transition item"
+            class="cnt textarea-transition"
             placeholder="Tambahkan catatan anda"
             :value="note.description"
             @input="event => {
@@ -37,7 +38,7 @@
               adjustTextarea(index);
             }"
           ></textarea>
-        </div>
+      </div>
       </div>
     </VueDraggable>
     <div
@@ -68,10 +69,10 @@ export default {
     }),  
     dragOptions() {
       return {
-        animation: 250,
-        draggable: '.item',
-        filter: 'textarea',
+        animation: 150,
+        easing: 'cubic-bezier(1, 0, 0, 1)',
         ghostClass: 'ghost',
+        filter: 'textarea',
         preventOnFilter: false,
       };
     },
@@ -137,6 +138,7 @@ export default {
     onMove({ relatedContext, draggedContext }) {
       const relatedElement = relatedContext.element;
       const draggedElement = draggedContext.element;
+
       return (
         (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed
       );
@@ -204,14 +206,23 @@ body {
 
 .note {
   width: 260px;
-  height: 300px;
-  padding: 24px 16px;
+  height: 380px;
   box-shadow: 5px 5px 10px -2px rgba(33, 33, 33, 0.3);
   transition: transform 0.15s;
   background-color: rgb(255, 242, 53);
   position: relative;
   z-index: 1;
   cursor: move;
+}
+
+.note-header {
+  height: 40px;
+  width: 100%;
+  background-color: red;
+}
+
+.note-content {
+  padding: 16px;
 }
 
 .note-close {
@@ -235,8 +246,7 @@ body {
 
 .note textarea.cnt {
   width: 100%;
-  height: 100%;
-  min-height: 300px;
+  height: 300px;
   box-sizing: border-box;
   resize: none;
   outline: none;
@@ -297,11 +307,10 @@ body {
     display: flex;
     flex-direction: column;
     gap: 48px;
-    vertical-align: middle;
   }
+
   .note {
-    height: 300px;
-    padding: 24px 16px;
+    height: 380px;
   }
 }
 </style>
