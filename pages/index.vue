@@ -142,6 +142,7 @@ body {
   width: 100%;
   height: 100%;
   display: flex;
+  align-items: center;
   gap: 48px;
   vertical-align: middle;
 }
@@ -152,7 +153,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgb(63, 167, 167);
+  background-color: rgb(108, 155, 255);
+  box-shadow: 5px 5px 10px -2px rgba(33, 33, 33, 0.3);
   color: white;
   border-radius: 50%;
   font-size: 36px;
@@ -239,5 +241,30 @@ body {
   width: 36px;
   height: 36px;
   color: white;
+}
+
+@media only screen and (max-width: 768px) {
+  .board {
+    padding: 24px;
+  }
+
+  .board-title {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 48px;
+  }
+
+  .board-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+    vertical-align: middle;
+  }
+  .note {
+    height: 300px;
+    padding: 24px 16px;
+  }
 }
 </style>
