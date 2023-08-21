@@ -117,7 +117,7 @@ export default {
   computed: {
     ...mapState('notes', {
       notes: state => state.notes
-    }),  
+    }),
     dragOptions() {
       return {
         animation: 0,
@@ -141,9 +141,11 @@ export default {
       updateNoteDescription: 'UPDATE_NOTE_DESCRIPTION',
     }),
     showVueDraw () {
+      document.body.classList.add('overflow-hidden');
       this.$modal.show('vue-draw-modal');
     },
     closeVueDraw () {
+      document.body.classList.remove('overflow-hidden');
       this.$modal.hide('vue-draw-modal');
     },
     saveNoteFromDrawing(image) {
@@ -232,6 +234,10 @@ export default {
 body {
   margin: 0;
   font-family: 'Kalam', cursive;
+}
+
+.overflow-hidden {
+  overflow: hidden;
 }
 
 .board {
@@ -508,7 +514,7 @@ body {
   .board-button {
     position: fixed;
     bottom: 24px;
-    right: 0;
+    right: 24px;
     z-index: 99;
   }
 
