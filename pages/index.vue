@@ -238,9 +238,9 @@ body {
   width: 100%;
   min-height: 100vh;
   height: 100%;
-  padding: 24px 36px;
-  box-sizing: border-box;
   position: relative;
+  padding: 24px 48px;
+  box-sizing: border-box;
 }
 
 .board-title {
@@ -301,10 +301,9 @@ body {
   border-radius: 50%;
   font-size: 36px;
   font-weight: 700;
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  margin: 0 24px 24px 0;
+  position: fixed;
+  right: 48px;
+  bottom: 48px;
   z-index: 99;
   cursor: pointer;
 }
@@ -457,7 +456,6 @@ body {
   background-color: rgb(255, 242, 53);
 }
 
-
 @media only screen and (max-width: 1440px) {
   .board-content {
     width: 100%;
@@ -486,7 +484,17 @@ body {
   .board-title {
     font-size: 28px;
     font-weight: 600;
-    margin-bottom: 48px;
+    margin-bottom: 24px;
+  }
+  
+  .board-option {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 36px 0;
+    gap: 8px;
   }
 
   .board-content {
@@ -495,6 +503,13 @@ body {
     display: grid;
     grid-template-columns: repeat(1, 1fr);
     gap: 48px;
+  }
+
+  .board-button {
+    position: fixed;
+    bottom: 24px;
+    right: 0;
+    z-index: 99;
   }
 
   .note {
