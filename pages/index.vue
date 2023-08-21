@@ -3,6 +3,20 @@
     <div class="board-title">
       Drop your Notes
     </div>
+    <div class="board-option">
+      <button
+        :class="['board-option-button', { 'board-option-button--active': !isDraw }]"
+        @click="isDraw = false"
+      >
+        TEXT
+      </button>
+      <button
+        :class="['board-option-button', { 'board-option-button--active': isDraw }]"
+        @click="isDraw = true"
+      >
+        DRAW
+      </button>
+    </div>
     <VueDraggable
       v-model="clientNotes"
       v-bind="dragOptions"
@@ -27,25 +41,30 @@
         </div>
         <div class="note-header handle"></div>
         <div class="note-content">
-          <textarea
-            ref="textarea"
-            class="input textarea-transition"
-            placeholder="Tambahkan catatan"
-            :value="note.description"
-            @focusout="handleFocusOut"
-            @input="event => {
-              handleInput(event, index);
-              handleUpdateDescription(index, event.target.value);
-              adjustTextarea(index);
-            }"
-          ></textarea>
-          <div
-            v-if="!isTextArea"
-            class="textarea-cover handle"
-            @click="handleFocusIn"
-            @touchstart="handleFocusIn"
-          ></div>
-      </div>
+          <div v-if="note.type === 'text'">
+            <textarea
+              :ref="`textarea${index}`"
+              class="input textarea-transition"
+              placeholder="Tambahkan catatan"
+              :value="note.description"
+              @focusout="handleFocusOut"
+              @input="event => {
+                handleInput(event, index);
+                handleUpdateDescription(index, event.target.value);
+                adjustTextarea(index);
+              }"
+            ></textarea>
+            <div
+              v-if="!isTextArea"
+              class="textarea-cover handle"
+              @click="handleFocusIn"
+              @touchstart="handleFocusIn"
+            ></div>
+          </div>
+          <div v-else>
+            <img class="note-drawing" :src="note.url" alt="note" loading="lazy" />
+          </div>
+        </div>
       </div>
     </VueDraggable>
     <div
@@ -54,21 +73,45 @@
     >
       <img class="note-icon-plus" src="~assets/icons/plus.svg" />
     </div>
+    <modal
+      name="vue-draw-modal"
+      height="auto"
+      :width="260"
+      :adaptive="true"
+      :click-to-close="false"
+    >
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-close" @click="closeVueDraw">
+            <img class="note-icon-close" src="~assets/icons/close.svg" />
+          </div>
+        </div>
+        <div class="modal-content">
+          <VueDrawing @create="saveNoteFromDrawing" />
+        </div>
+      </div>
+    </modal>
   </div>
 </template>
 
 <script>
-import debounce from 'lodash/debounce';
+import debounce from "lodash/debounce";
 import { mapState, mapMutations } from "vuex";
+import VueDrawing from "../components/VueDrawing";
 
 export default {
   name: 'BoardPage',
+  components: {
+    VueDrawing
+  },
   data() {
     return {
       drag: false,
+      isDraw: false,
       clientNotes: [],
       activeTextareaIndex: null,
       isTextArea: true,
+      typeNote: 'text',
     }
   },
   computed: {
@@ -97,12 +140,32 @@ export default {
       updateNotesOrder: 'SET_NOTES',
       updateNoteDescription: 'UPDATE_NOTE_DESCRIPTION',
     }),
-    handleAddNote() {
+    showVueDraw () {
+      this.$modal.show('vue-draw-modal');
+    },
+    closeVueDraw () {
+      this.$modal.hide('vue-draw-modal');
+    },
+    saveNoteFromDrawing(image) {
       const newNote = {
-        description: "",
+        url: image,
         createdAt: new Date(),
+        type: 'draw',
       };
       this.addNote(newNote);
+      this.closeVueDraw();
+    },
+    handleAddNote() {
+      if (this.isDraw) {
+        this.showVueDraw()
+      } else {
+        const newNote = {
+          description: '',
+          createdAt: new Date(),
+          type: 'text',
+        };
+        this.addNote(newNote);
+      }
     },
     handleRemoveNote: debounce(function (index) {
       if (index >= 0 && index < this.notes.length) {
@@ -121,7 +184,7 @@ export default {
       }
     },
     adjustTextarea(index) {
-      const textarea = this.$refs.textarea[index];
+      const textarea = this.$refs[`textarea${index}`][0];
       const maxScrollHeight = 300;
 
       textarea.style.height = 'auto';
@@ -134,7 +197,7 @@ export default {
       }
     },
     handleInput(event, index) {
-      const textarea = this.$refs.textarea[index];
+      const textarea = this.$refs[`textarea${index}`][0];
       const maxScrollHeight = 300;
 
       if (textarea.scrollHeight > maxScrollHeight) {
@@ -184,16 +247,46 @@ body {
   font-size: 32px;
   font-weight: 600;
   text-align: center;
-  margin-bottom: 64px;
+  margin-bottom: 48px;
+}
+
+.board-option {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin: 36px 0;
+  gap: 8px;
+}
+
+.board-option-button {
+  padding: 8px 24px;
+  border: none;
+  font-weight: 500;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 1px solid #929292;
+}
+
+.board-option-button--active {
+  padding: 8px 24px;
+  border: 1px solid #06125c;
+  background-color: #06125c;
+  color: white;
+  font-weight: 500;
+  border-radius: 3px;
+  cursor: pointer;
 }
 
 .board-content {
   width: 100%;
   height: 100%;
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   gap: 48px;
   vertical-align: middle;
+  justify-items: center;
 }
 
 .board-button {
@@ -213,6 +306,7 @@ body {
   right: 0;
   margin: 0 24px 24px 0;
   z-index: 99;
+  cursor: pointer;
 }
 
 .ghost {
@@ -267,6 +361,11 @@ body {
 .note-content {
   padding: 16px;
   position: relative;
+}
+
+.note-drawing {
+  width: 100%;
+  height: 100%;
 }
 
 .note textarea.input {
@@ -324,6 +423,61 @@ body {
   color: white;
 }
 
+.modal {
+  width: 100%;
+  height: 100%;
+}
+
+.modal-header {
+  height: 40px;
+  width: 100%;
+  background-color: #06125c;
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.modal-close {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 8px;
+  background-color: rgb(255, 255, 255);
+  border: 0.8px solid rgb(199, 199, 199);
+  font-weight: 700;
+  border-radius: 50%;
+}
+
+.modal-content {
+  width: 100%;
+  background-color: rgb(255, 242, 53);
+}
+
+
+@media only screen and (max-width: 1440px) {
+  .board-content {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 48px;
+  }
+}
+
+@media only screen and (max-width: 1280px) {
+  .board-content {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 48px;
+  }
+}
+
 @media only screen and (max-width: 768px) {
   .board {
     padding: 24px 24px 64px 24px;
@@ -338,8 +492,8 @@ body {
   .board-content {
     width: 100%;
     height: 100%;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
     gap: 48px;
   }
 
