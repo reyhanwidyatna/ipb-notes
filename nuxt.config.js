@@ -21,6 +21,8 @@ export default {
 
   plugins: [
     { src: '~/plugins/vue-draggable.js', ssr: false },
+    { src: '~/plugins/vue-modal.js', ssr: false },
+    { src: '~/plugins/vue-toast.js', ssr: false },
     { src: '~/plugins/vue-persist.js', ssr: false }
   ],
 

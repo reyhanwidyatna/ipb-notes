@@ -16,8 +16,10 @@
     "core-js": "^3.25.3",
     "nuxt": "^2.15.8",
     "vue": "^2.7.10",
+    "vue-js-modal": "^2.0.1",
     "vue-server-renderer": "^2.7.10",
     "vue-template-compiler": "^2.7.10",
+    "vue-toasted": "^1.1.28",
     "vuedraggable": "^2.24.3",
     "vuex-persistedstate": "^4.1.0"
   },
