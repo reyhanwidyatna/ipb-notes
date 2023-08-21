@@ -30,7 +30,7 @@
           <textarea
             ref="textarea"
             class="input textarea-transition"
-            placeholder="Tambahkan catatan anda"
+            placeholder="Tambahkan catatan"
             :value="note.description"
             @focusout="handleFocusOut"
             @input="event => {
@@ -80,6 +80,8 @@ export default {
         animation: 0,
         easing: 'cubic-bezier(1, 0, 0, 1)',
         ghostClass: 'ghost',
+        chosenClass: 'chosen',
+	      dragClass: 'drag',
         filter: 'textarea',
         preventOnFilter: false,
       };
@@ -217,6 +219,14 @@ body {
   opacity: 0.75;
   background: #c8ebfb;
 }
+
+/* .chosen {
+  background: red;
+}
+
+.drag {
+  background: blue;
+} */
 
 .note {
   width: 260px;
