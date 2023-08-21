@@ -30,6 +30,7 @@
       <div
         v-for="(note, index) in clientNotes"
         :key="index"
+        :style="{ backgroundColor: note.color || '#ffff88' }"
         class="note handle"
       >
         <div
@@ -39,27 +40,12 @@
         >
           <img class="note-icon-close" src="~assets/icons/close.svg" />
         </div>
-        <div class="note-header handle"></div>
+        <div class="note-header" />
         <div class="note-content">
           <div v-if="note.type === 'text'">
-            <textarea
-              :ref="`textarea${index}`"
-              class="input textarea-transition"
-              placeholder="Tambahkan catatan"
-              :value="note.description"
-              @focusout="handleFocusOut"
-              @input="event => {
-                handleInput(event, index);
-                handleUpdateDescription(index, event.target.value);
-                adjustTextarea(index);
-              }"
-            ></textarea>
-            <div
-              v-if="!isTextArea"
-              class="textarea-cover handle"
-              @click="handleFocusIn"
-              @touchstart="handleFocusIn"
-            ></div>
+            <div class="note-text">
+              {{ note.description  }}
+            </div>
           </div>
           <div v-else>
             <img class="note-drawing" :src="note.url" alt="note" loading="lazy" />
@@ -67,27 +53,72 @@
         </div>
       </div>
     </VueDraggable>
-    <div
-      class="board-button"
-      @click="handleAddNote"
-    >
+
+    <div class="board-button" @click="handleAddNote">
       <img class="note-icon-plus" src="~assets/icons/plus.svg" />
     </div>
+
     <modal
       name="vue-draw-modal"
       height="auto"
-      :width="260"
+      :width="300"
       :adaptive="true"
       :click-to-close="false"
     >
       <div class="modal">
         <div class="modal-header">
-          <div class="modal-close" @click="closeVueDraw">
-            <img class="note-icon-close" src="~assets/icons/close.svg" />
+          <div class="modal-close" @click="closeNoteModal">
+            <img class="modal-icon-close" src="~assets/icons/close.svg" />
           </div>
         </div>
-        <div class="modal-content">
-          <VueDrawing @create="saveNoteFromDrawing" />
+        <div class="modal-content" :style="{ backgroundColor: colorBase }">
+          <VueDrawing
+            v-if="isDraw"
+            @create="saveNoteFromDrawing"
+            @color="setColorBase"
+          />
+          <VueTextarea
+            v-else
+            @create="saveNoteFromText"
+            @color="setColorBase"
+          />
+        </div>
+      </div>
+    </modal>
+
+    <modal
+      name="vue-delete-note"
+      height="auto"
+      :width="300"
+      :adaptive="true"
+      :click-to-close="false"
+    >
+      <div class="modal-delete">
+        <div class="modal-delete-header">
+          <div class="modal-delete-close" @click="closeDeleteModal">
+            <img class="modal-delete-icon-close" src="~assets/icons/close.svg" />
+          </div>
+        </div>
+        <div class="modal-delete-content">
+          <h3 class="modal-delete-title">Masukkan Password</h3>
+          <img
+            class="modal-delete-illustration"
+            src="~assets/png/private-campaign.png"
+            alt="illustration"
+          />
+          <input
+            v-model="privateToken"
+            class="modal-delete-input"
+            type="password"
+            placeholder="*******"
+          />
+          <button
+            class="modal-delete-button"
+            :disabled="!isFieldComplete"
+            @click="submitRemoveNote"
+          >
+            SUBMIT
+          </button>
         </div>
       </div>
     </modal>
@@ -95,23 +126,27 @@
 </template>
 
 <script>
-import debounce from "lodash/debounce";
 import { mapState, mapMutations } from "vuex";
+import debounce from "lodash/debounce";
 import VueDrawing from "../components/VueDrawing";
+import VueTextarea from "../components/VueTextarea";
 
 export default {
   name: 'BoardPage',
   components: {
-    VueDrawing
+    VueDrawing,
+    VueTextarea
   },
   data() {
     return {
       drag: false,
       isDraw: false,
       clientNotes: [],
-      activeTextareaIndex: null,
-      isTextArea: true,
       typeNote: 'text',
+      colorBase: '#ffff88',
+      privateToken: '',
+      accessToken: 'ipbnotes1963',
+      deletedIndex: -1,
     }
   },
   computed: {
@@ -129,6 +164,9 @@ export default {
         preventOnFilter: false,
       };
     },
+    isFieldComplete() {
+      return this.privateToken.length > 0
+    }
   },
   mounted() {
     this.clientNotes = this.notes
@@ -140,75 +178,74 @@ export default {
       updateNotesOrder: 'SET_NOTES',
       updateNoteDescription: 'UPDATE_NOTE_DESCRIPTION',
     }),
-    showVueDraw () {
-      document.body.classList.add('overflow-hidden');
-      this.$modal.show('vue-draw-modal');
-    },
-    closeVueDraw () {
-      document.body.classList.remove('overflow-hidden');
-      this.$modal.hide('vue-draw-modal');
-    },
-    saveNoteFromDrawing(image) {
-      const newNote = {
-        url: image,
-        createdAt: new Date(),
-        type: 'draw',
-      };
-      this.addNote(newNote);
-      this.closeVueDraw();
+    setColorBase(color) {
+      this.colorBase = color
     },
     handleAddNote() {
-      if (this.isDraw) {
-        this.showVueDraw()
-      } else {
-        const newNote = {
-          description: '',
-          createdAt: new Date(),
-          type: 'text',
-        };
-        this.addNote(newNote);
-      }
+      this.showNoteModal()
+    },
+    showDeleteModal () {
+      document.body.classList.add('overflow-hidden');
+      this.$modal.show('vue-delete-note');
+    },
+    closeDeleteModal () {
+      document.body.classList.remove('overflow-hidden');
+      this.deletedIndex = -1;
+      this.$modal.hide('vue-delete-note');
+    },
+    showNoteModal () {
+      document.body.classList.add('overflow-hidden');
+      this.colorBase = '#ffff88';
+      this.$modal.show('vue-draw-modal');
+    },
+    closeNoteModal () {
+      document.body.classList.remove('overflow-hidden');
+      this.colorBase = '#ffff88';
+      this.$modal.hide('vue-draw-modal');
+    },
+    saveNoteFromDrawing(note) {
+      const newNote = {
+        url: note.url,
+        color: note.color,
+        type: 'draw',
+        createdAt: new Date()
+      };
+      this.addNote(newNote);
+      this.closeNoteModal();
+    },
+    saveNoteFromText(note) {
+      const newNote = {
+        description: note.note,
+        color: note.color,
+        createdAt: new Date(),
+        type: 'text',
+      };
+      this.addNote(newNote);
+      this.closeNoteModal();
     },
     handleRemoveNote: debounce(function (index) {
       if (index >= 0 && index < this.notes.length) {
-        this.removeNote(index);
+        this.deletedIndex = index;
+        this.showDeleteModal();
       }
     }, 200, {
       leading: true,
       trailing: false,
     }),
+    submitRemoveNote() {
+      if (this.privateToken === this.accessToken) {
+        this.removeNote(this.deletedIndex);
+        this.closeDeleteModal()
+      } else {
+        this.$toasted.show('Password Salah', {
+          position: 'top-center',
+          duration: 1500,
+          type: 'error'
+        })
+      }
+    },
     handleNotesChange() {
       this.updateNotesOrder(this.clientNotes);
-    },
-    handleUpdateDescription(index, description) {
-      if (index >= 0 && index < this.notes.length) {
-        this.updateNoteDescription({ index, description });
-      }
-    },
-    adjustTextarea(index) {
-      const textarea = this.$refs[`textarea${index}`][0];
-      const maxScrollHeight = 300;
-
-      textarea.style.height = 'auto';
-      textarea.style.overflowY = 'hidden';
-
-      if (textarea.scrollHeight >= maxScrollHeight) {
-        textarea.style.height = `${maxScrollHeight}px`;
-      } else {
-        textarea.style.height = `${textarea.scrollHeight}px`;
-      }
-    },
-    handleInput(event, index) {
-      const textarea = this.$refs[`textarea${index}`][0];
-      const maxScrollHeight = 300;
-
-      if (textarea.scrollHeight > maxScrollHeight) {
-        event.preventDefault();
-        textarea.value = this.notes[index].description;
-      } else {
-        this.handleUpdateDescription(index, event.target.value);
-        this.adjustTextarea(index);
-      }
     },
     onMove({ relatedContext, draggedContext }) {
       const relatedElement = relatedContext.element;
@@ -218,12 +255,6 @@ export default {
         (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed
       );
     },
-    handleFocusOut() {
-      this.isTextArea = false
-    },
-    handleFocusIn() {
-      this.isTextArea = true
-    }
   },
 }
 </script>
@@ -319,23 +350,14 @@ body {
   background: #c8ebfb;
 }
 
-/* .chosen {
-  background: red;
-}
-
-.drag {
-  background: blue;
-} */
-
 .note {
-  width: 260px;
+  width: 300px;
   height: 380px;
   box-shadow: 5px 5px 10px -2px rgba(33, 33, 33, 0.3);
   transition: transform 0.15s;
-  background-color: rgb(255, 242, 53);
   position: relative;
-  z-index: 1;
   cursor: move;
+  z-index: 1;
 }
 
 .note-header {
@@ -373,48 +395,11 @@ body {
   height: 100%;
 }
 
-.note textarea.input {
+.note-text {
   width: 100%;
-  height: 300px;
-  box-sizing: border-box;
-  resize: none;
-  outline: none;
-  border: none;
-  transition: font-size 0.2s;
-  background-color: transparent;
-  scrollbar-width: none;
+  height: 100%;
   font-size: 20px;
-  font-family: 'Kalam', cursive;
   font-weight: 600;
-}
-
-.note textarea.input:focus::placeholder {
-  color: transparent;
-}
-
-.note textarea.textarea-transition {
-  transition: height 0.2s;
-}
-
-.note textarea.input::-webkit-scrollbar {
-  width: 0px;
-}
-
-.note textarea.input::-webkit-scrollbar-track {
-  background-color: transparent;
-}
-
-.note textarea.input::-webkit-scrollbar-thumb {
-  background-color: transparent;
-}
-
-.textarea-cover {
-  height: 300px;
-  width: 100%;
-  background-color: transparent;
-  position: absolute;
-  top: 0;
-  left: 0;
 }
 
 .note-icon-close {
@@ -460,6 +445,76 @@ body {
 .modal-content {
   width: 100%;
   background-color: rgb(255, 242, 53);
+}
+
+.modal-delete {
+  width: 100%;
+  height: 100%;
+}
+
+.modal-delete-header {
+  height: 40px;
+  width: 100%;
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.modal-delete-close {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 8px;
+  background-color: rgb(255, 255, 255);
+  font-weight: 700;
+  border-radius: 50%;
+}
+
+.modal-delete-icon-close {
+  width: 16px;
+  height: 16px;
+}
+
+.modal-delete-content {
+  padding: 0 24px 16px 24px;
+}
+
+.modal-delete-title {
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.modal-delete-illustration {
+  width: 128px;
+  height: 128px;
+  margin: auto;
+  display: flex;
+}
+
+.modal-delete-input {
+  width: 100%;
+  height: 36px;
+  margin-top: 16px;
+  box-sizing: border-box;
+  padding: 4px 8px  ;
+} 
+
+.modal-delete-button {
+  width: 100%;
+  height: 36px;
+  margin: 16px 0;
+  box-sizing: border-box;
+  background-color: #06125c;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 3px;
 }
 
 @media only screen and (max-width: 1440px) {

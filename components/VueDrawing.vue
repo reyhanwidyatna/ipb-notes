@@ -2,8 +2,8 @@
   <div class="canvas">
     <canvas
       ref="canvas"
-      width="260"
-      height="340"
+      width="300"
+      height="320"
       @touchstart="startDrawing"
       @touchmove="draw"
       @touchend="stopDrawing"
@@ -14,12 +14,23 @@
       @mouseleave="stopDrawing"
     ></canvas>
     <div class="canvas-action">
-      <button class="canvas-reset" @click="resetCanvas">
-        Reset
-      </button>
-      <button class="canvas-save" @click="saveCanvas">
-        Simpan
-      </button>
+      <div class="canvas-color">
+        <div
+          v-for="color in colors"
+          :key="color"
+          class="canvas-color-preview"
+          :style="{ backgroundColor: color }"
+          @click="setDrawingColor(color)"
+        ></div>
+      </div>
+      <div>
+        <button class="canvas-reset" @click="resetCanvas">
+          Reset
+        </button>
+        <button class="canvas-save" @click="saveCanvas">
+          Simpan
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -30,6 +41,13 @@ export default {
     return {
       isDrawing: false,
       context: null,
+      currentColor: '#ffff88',
+      colors: [
+        '#ffff88',
+        '#ff32b2',
+        '#a9edf1',
+        '#74ed4b',
+      ]
     };
   },
   mounted() {
@@ -75,6 +93,10 @@ export default {
 
       return { offsetX, offsetY };
     },
+    setDrawingColor(color) {
+      this.currentColor = color
+      this.$emit('color', color);
+    },
     resetCanvas() {
       this.context.clearRect(0, 0, this.$refs.canvas.width, this.$refs.canvas.height);
     },
@@ -97,7 +119,7 @@ export default {
 
       if (hasDrawing) {
         const imageDataUrl = canvas.toDataURL('image/png', 1.0);
-        this.$emit('create', imageDataUrl);
+        this.$emit('create', { url: imageDataUrl, color: this.currentColor });
       } else {
         this.$toasted.show('Gambar Anda masih kosong!!!', {
           position: 'top-center',
@@ -122,21 +144,37 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: white;
+  background-color: transparent;
+  padding: 8px 16px;
+  box-sizing: border-box;
+}
+
+.canvas-color {
+  display: flex;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.canvas-color-preview {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid rgb(75, 75, 75);
 }
 
 .canvas-reset {
-  padding: 8px 12px;
+  padding: 6px 12px;
   border: none;
   border-radius: 3px;
   color: white;
   cursor: pointer;
   font-size: 16px;
+  margin-right: 4px;
   background-color: red;
 }
 
 .canvas-save {
-  padding: 8px 12px;
+  padding: 6px 12px;
   border: none;
   border-radius: 3px;
   color: white;
