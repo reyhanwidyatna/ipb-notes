@@ -7,10 +7,11 @@
       @touchstart="startDrawing"
       @touchmove="draw"
       @touchend="stopDrawing"
+      @touchcancel="stopDrawing"
       @mousedown="startDrawing"
       @mousemove="draw"
       @mouseup="stopDrawing"
-      @touchcancel="stopDrawing"
+      @mouseleave="stopDrawing"
     ></canvas>
     <div class="canvas-action">
       <button class="canvas-reset" @click="resetCanvas">
@@ -38,14 +39,14 @@ export default {
     startDrawing(event) {
       event.preventDefault();
       this.isDrawing = true;
-      const { offsetX, offsetY } = this.getEventCoordinates(event);
+      const { offsetX, offsetY } = event;
       this.context.beginPath();
       this.context.moveTo(offsetX, offsetY);
     },
     draw(event) {
       if (!this.isDrawing) return;
       event.preventDefault();
-      const { offsetX, offsetY } = this.getEventCoordinates(event);
+      const { offsetX, offsetY } = event;
       this.context.lineTo(offsetX, offsetY);
       this.context.stroke();
     },
