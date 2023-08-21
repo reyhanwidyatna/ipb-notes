@@ -235,7 +235,8 @@ export default {
     submitRemoveNote() {
       if (this.privateToken === this.accessToken) {
         this.removeNote(this.deletedIndex);
-        this.closeDeleteModal()
+        this.privateToken = '';
+        this.closeDeleteModal();
       } else {
         this.$toasted.show('Password Salah', {
           position: 'top-center',
