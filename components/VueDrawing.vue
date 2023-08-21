@@ -39,14 +39,14 @@ export default {
     startDrawing(event) {
       event.preventDefault();
       this.isDrawing = true;
-      const { offsetX, offsetY } = event;
+      const { offsetX, offsetY } = this.getEventCoordinates(event);
       this.context.beginPath();
       this.context.moveTo(offsetX, offsetY);
     },
     draw(event) {
       if (!this.isDrawing) return;
       event.preventDefault();
-      const { offsetX, offsetY } = event;
+      const { offsetX, offsetY } = this.getEventCoordinates(event);
       this.context.lineTo(offsetX, offsetY);
       this.context.stroke();
     },
@@ -55,17 +55,21 @@ export default {
       this.context.closePath();
     },
     getEventCoordinates(event) {
+      const canvasRect = this.$refs.canvas.getBoundingClientRect();
       let clientX, clientY;
 
       if (event.type.startsWith("touch")) {
-        clientX = event.touches[0].clientX;
-        clientY = event.touches[0].clientY;
+        if (event.touches.length > 0) {
+          clientX = event.touches[0].clientX;
+          clientY = event.touches[0].clientY;
+        } else {
+          return null;
+        }
       } else {
-        clientX = event.offsetX;
-        clientY = event.offsetY;
+        clientX = event.clientX;
+        clientY = event.clientY;
       }
 
-      const canvasRect = this.$refs.canvas.getBoundingClientRect();
       const offsetX = clientX - canvasRect.left;
       const offsetY = clientY - canvasRect.top;
 
