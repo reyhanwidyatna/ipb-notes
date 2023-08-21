@@ -29,15 +29,22 @@
         <div class="note-content">
           <textarea
             ref="textarea"
-            class="cnt textarea-transition"
+            class="input textarea-transition"
             placeholder="Tambahkan catatan anda"
             :value="note.description"
+            @focusout="handleFocusOut"
             @input="event => {
               handleInput(event, index);
               handleUpdateDescription(index, event.target.value);
               adjustTextarea(index);
             }"
           ></textarea>
+          <div
+            v-if="!isTextArea"
+            class="textarea-cover handle"
+            @click="handleFocusIn"
+            @touchstart="handleFocusIn"
+          ></div>
       </div>
       </div>
     </VueDraggable>
@@ -61,6 +68,7 @@ export default {
       drag: false,
       clientNotes: [],
       activeTextareaIndex: null,
+      isTextArea: true,
     }
   },
   computed: {
@@ -69,7 +77,7 @@ export default {
     }),  
     dragOptions() {
       return {
-        animation: 150,
+        animation: 0,
         easing: 'cubic-bezier(1, 0, 0, 1)',
         ghostClass: 'ghost',
         filter: 'textarea',
@@ -143,6 +151,12 @@ export default {
         (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed
       );
     },
+    handleFocusOut() {
+      this.isTextArea = false
+    },
+    handleFocusIn() {
+      this.isTextArea = true
+    }
   },
 }
 </script>
@@ -218,11 +232,7 @@ body {
 .note-header {
   height: 40px;
   width: 100%;
-  background-color: red;
-}
-
-.note-content {
-  padding: 16px;
+  background-color: #06125c;
 }
 
 .note-close {
@@ -244,7 +254,12 @@ body {
   border-radius: 50%;
 }
 
-.note textarea.cnt {
+.note-content {
+  padding: 16px;
+  position: relative;
+}
+
+.note textarea.input {
   width: 100%;
   height: 300px;
   box-sizing: border-box;
@@ -259,7 +274,7 @@ body {
   font-weight: 600;
 }
 
-.note textarea.cnt:focus::placeholder {
+.note textarea.input:focus::placeholder {
   color: transparent;
 }
 
@@ -267,16 +282,25 @@ body {
   transition: height 0.2s;
 }
 
-.note textarea.cnt::-webkit-scrollbar {
+.note textarea.input::-webkit-scrollbar {
   width: 0px;
 }
 
-.note textarea.cnt::-webkit-scrollbar-track {
+.note textarea.input::-webkit-scrollbar-track {
   background-color: transparent;
 }
 
-.note textarea.cnt::-webkit-scrollbar-thumb {
+.note textarea.input::-webkit-scrollbar-thumb {
   background-color: transparent;
+}
+
+.textarea-cover {
+  height: 300px;
+  width: 100%;
+  background-color: transparent;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 .note-icon-close {
