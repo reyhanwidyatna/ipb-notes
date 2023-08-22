@@ -311,22 +311,20 @@ body {
 .board {
   width: 100%;
   min-height: 100vh;
-  height: 100%;
   position: relative;
-  box-sizing: border-box;
-}
-
-.board-wall {
-  width: 100%;
-  height: 100%;
-  padding: 32px 64px;
-  box-sizing: border-box;
   background-image:
     linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.8)),
     url('~assets/jpg/museum-background.jpg');
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
+  box-sizing: border-box;
+}
+
+.board-wall {
+  width: 100%;
+  padding: 32px 64px;
+  box-sizing: border-box;
 }
 
 .board-title {
