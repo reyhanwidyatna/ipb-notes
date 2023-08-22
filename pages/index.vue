@@ -10,10 +10,10 @@
         </a>
       </div>
       <p class="board-banner-title">
-        Mading Museum dan Galeri IPB
+        Museum dan Galeri IPB
       </p>
       <p class="board-banner-subtitle">
-        "Mari berbagi kenangan tak terlupakanmu di Mading Museum dan Galeri IPB. Yuk, tuliskan ceritamu di sini"
+        "Mari berbagi kenangan tak terlupakanmu di Museum dan Galeri IPB. Yuk, tuliskan ceritamu di sini"
       </p>
     </div>
     <div class="board-wall">
@@ -438,7 +438,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgb(108, 155, 255);
+  background-color: #025f9a;
   box-shadow: 5px 5px 10px -2px rgba(33, 33, 33, 0.3);
   color: white;
   border-radius: 50%;
