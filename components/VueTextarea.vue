@@ -80,6 +80,7 @@ export default {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 .textarea textarea.input {
   width: 100%;
   height: 320px;
@@ -148,6 +149,7 @@ export default {
   font-size: 14px;
   margin-right: 4px;
   background-color: red;
+  font-family: 'Roboto', sans-serif;
 }
 
 .textarea-save {
@@ -158,5 +160,6 @@ export default {
   cursor: pointer;
   font-size: 14px;
   background-color: green;
+  font-family: 'Roboto', sans-serif;
 }
 </style>

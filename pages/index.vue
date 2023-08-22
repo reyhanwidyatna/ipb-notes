@@ -1,65 +1,102 @@
 <template>
   <div class="board">
-    <div class="board-title">
-      Drop your Notes
+    <div class="board-banner">
+      <div class="board-navbar">
+        <div>
+          <img class="board-banner-logo" src="~assets/png/museum-logo.png" />
+        </div>
+        <a class="board-redirect" href="https://museum.ipb.ac.id/">
+          Kunjungi Museum
+        </a>
+      </div>
+      <p class="board-banner-title">
+        Mading Museum dan Galeri IPB
+      </p>
+      <p class="board-banner-subtitle">
+        "Mari berbagi kenangan tak terlupakanmu di Mading Museum dan Galeri IPB. Yuk, tuliskan ceritamu di sini"
+      </p>
     </div>
-    <div class="board-option">
-      <button
-        :class="['board-option-button', { 'board-option-button--active': !isDraw }]"
-        @click="isDraw = false"
-      >
-        TEXT
-      </button>
-      <button
-        :class="['board-option-button', { 'board-option-button--active': isDraw }]"
-        @click="isDraw = true"
-      >
-        DRAW
-      </button>
-    </div>
-    <VueDraggable
-      v-model="clientNotes"
-      v-bind="dragOptions"
-      class="board-content"
-      handle=".handle"
-      :move="onMove"
-      @start="drag=true"
-      @end="drag=false"
-      @change="handleNotesChange"
-    >
-      <div
-        v-for="(note, index) in clientNotes"
-        :key="index"
-        :style="{ backgroundColor: note.color || '#ffff88' }"
-        class="note handle"
+    <div class="board-wall">
+      <div class="board-option">
+        <h3 class="board-title">
+          Catatan Pengunjung
+        </h3>
+      </div>
+      <VueDraggable
+        v-model="clientNotes"
+        v-bind="dragOptions"
+        class="board-content"
+        handle=".handle"
+        :move="onMove"
+        @start="drag=true"
+        @end="drag=false"
+        @change="handleNotesChange"
       >
         <div
-          class="note-close"
-          @click="handleRemoveNote(index)"
-          @touchstart="handleRemoveNote(index)"
+          v-for="(note, index) in clientNotes"
+          :key="index"
+          :style="{ backgroundColor: note.color || '#ffff88' }"
+          class="note handle"
         >
-          <img class="note-icon-close" src="~assets/icons/close.svg" />
-        </div>
-        <div class="note-header" />
-        <div class="note-content">
-          <div v-if="note.type === 'text'">
-            <div class="note-text">
-              {{ note.description  }}
+          <div
+            class="note-close"
+            @click="handleRemoveNote(index)"
+            @touchstart="handleRemoveNote(index)"
+          >
+            <img class="note-icon-close" src="~assets/icons/close.svg" />
+          </div>
+          <div class="note-header" />
+          <div class="note-content">
+            <div v-if="note.type === 'text'" style="display: flex;">
+              <div class="note-text">
+                {{ note.description  }}
+              </div>
+            </div>
+            <div v-else style="display: flex;">
+              <img class="note-drawing" :src="note.url" alt="note" loading="lazy" />
             </div>
           </div>
-          <div v-else>
-            <img class="note-drawing" :src="note.url" alt="note" loading="lazy" />
-          </div>
         </div>
-      </div>
-    </VueDraggable>
+      </VueDraggable>
+    </div>
 
     <div class="board-button" @click="handleAddNote">
       <img class="note-icon-plus" src="~assets/icons/plus.svg" />
     </div>
 
     <modal
-      name="vue-draw-modal"
+      name="vue-choose-note"
+      height="auto"
+      :width="300"
+      :adaptive="true"
+      :click-to-close="false"
+    >
+      <div class="modal-choose">
+        <div class="modal-choose-header">
+          <div class="modal-choose-close" @click="closeChooseModal">
+            <img class="modal-choose-icon-close" src="~assets/icons/close.svg" />
+          </div>
+        </div>
+        <div class="modal-choose-content">
+          <p class="modal-choose-title">Jenis Catatan</p>
+          <div v-for="(option, index) in options" :key="index" class="modal-choose-option">
+            <input
+              :id="option.value"
+              v-model="selectedOption"
+              type="radio"
+              :value="option.value"
+            >
+            <label :for="option.value">{{ option.name }}</label>
+          </div>
+          <button class="modal-choose-button" @click="chooseOption">
+            PILIH
+          </button>
+        </div>
+      </div>
+    </modal>
+
+    <modal
+      name="vue-create-note"
       height="auto"
       :width="300"
       :adaptive="true"
@@ -73,7 +110,7 @@
         </div>
         <div class="modal-content" :style="{ backgroundColor: colorBase }">
           <VueDrawing
-            v-if="isDraw"
+            v-if="selectedOption === 'draw'"
             @create="saveNoteFromDrawing"
             @color="setColorBase"
           />
@@ -117,7 +154,7 @@
             :disabled="!isFieldComplete"
             @click="submitRemoveNote"
           >
-            SUBMIT
+            KIRIM
           </button>
         </div>
       </div>
@@ -140,13 +177,17 @@ export default {
   data() {
     return {
       drag: false,
-      isDraw: false,
       clientNotes: [],
       typeNote: 'text',
       colorBase: '#ffff88',
       privateToken: '',
       accessToken: 'ipbnotes1963',
       deletedIndex: -1,
+      options: [
+        { name: 'Text', value: 'text' },
+        { name: 'Draw', value: 'draw' },
+      ],
+      selectedOption: 'text'
     }
   },
   computed: {
@@ -182,7 +223,29 @@ export default {
       this.colorBase = color
     },
     handleAddNote() {
+      this.showChooseModal()
+    },
+    showChooseModal () {
+      document.body.classList.add('overflow-hidden');
+      this.$modal.show('vue-choose-note');
+    },
+    closeChooseModal () {
+      document.body.classList.remove('overflow-hidden');
+      this.$modal.hide('vue-choose-note');
+    },
+    chooseOption() {
+      this.closeChooseModal()
       this.showNoteModal()
+    },
+    showNoteModal () {
+      document.body.classList.add('overflow-hidden');
+      this.colorBase = '#ffff88';
+      this.$modal.show('vue-create-note');
+    },
+    closeNoteModal () {
+      document.body.classList.remove('overflow-hidden');
+      this.colorBase = '#ffff88';
+      this.$modal.hide('vue-create-note');
     },
     showDeleteModal () {
       document.body.classList.add('overflow-hidden');
@@ -192,16 +255,6 @@ export default {
       document.body.classList.remove('overflow-hidden');
       this.deletedIndex = -1;
       this.$modal.hide('vue-delete-note');
-    },
-    showNoteModal () {
-      document.body.classList.add('overflow-hidden');
-      this.colorBase = '#ffff88';
-      this.$modal.show('vue-draw-modal');
-    },
-    closeNoteModal () {
-      document.body.classList.remove('overflow-hidden');
-      this.colorBase = '#ffff88';
-      this.$modal.hide('vue-draw-modal');
     },
     saveNoteFromDrawing(note) {
       const newNote = {
@@ -261,8 +314,7 @@ export default {
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Roboto:wght@400;500;700&display=swap');
 body {
   margin: 0;
   font-family: 'Kalam', cursive;
@@ -277,15 +329,67 @@ body {
   min-height: 100vh;
   height: 100%;
   position: relative;
-  padding: 24px 48px;
+  box-sizing: border-box;
+}
+
+.board-navbar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 36px 48px;
+  box-sizing: border-box;
+  background-color: transparent;
+}
+
+.board-redirect {
+  font-size: 20px;
+  text-decoration: none;
+  color: white;
+  font-weight: 600;
+  border-bottom: 3px solid white;
+}
+
+.board-banner {
+  width: 100%;
+  height: 50vh;
+  background-image:
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.8)),
+    url('~assets/jpg/museum-background.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+
+.board-banner-title {
+  font-size: 64px;
+  font-weight: 700;
+  text-align: center;
+  color: white;
+  margin: 36px 0 0 0;
+}
+
+.board-banner-subtitle {
+  font-size: 32px;
+  font-weight: 500;
+  text-align: center;
+  color: white;
+  margin: 0;
+  padding: 0 16px;
+}
+
+.board-wall {
+  width: 100%;
+  height: 100%;
+  padding: 32px 64px;
   box-sizing: border-box;
 }
 
 .board-title {
   font-size: 32px;
   font-weight: 600;
-  text-align: center;
-  margin-bottom: 48px;
+  margin: 0;
 }
 
 .board-option {
@@ -293,8 +397,8 @@ body {
   height: 100%;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  margin: 36px 0;
+  justify-content: space-between;
+  margin:48px 0;
   gap: 8px;
 }
 
@@ -305,12 +409,13 @@ body {
   border-radius: 3px;
   cursor: pointer;
   border: 1px solid #929292;
+  font-family: 'Roboto', sans-serif;
 }
 
 .board-option-button--active {
   padding: 8px 24px;
-  border: 1px solid #06125c;
-  background-color: #06125c;
+  border: 1px solid #025f9a;
+  background-color: #025f9a;
   color: white;
   font-weight: 500;
   border-radius: 3px;
@@ -322,7 +427,7 @@ body {
   height: 100%;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 48px;
+  gap: 36px;
   vertical-align: middle;
   justify-items: center;
 }
@@ -353,7 +458,7 @@ body {
 
 .note {
   width: 300px;
-  height: 380px;
+  height: 370px;
   box-shadow: 5px 5px 10px -2px rgba(33, 33, 33, 0.3);
   transition: transform 0.15s;
   position: relative;
@@ -364,7 +469,7 @@ body {
 .note-header {
   height: 40px;
   width: 100%;
-  background-color: #06125c;
+  background-color: #025f9a;
 }
 
 .note-close {
@@ -414,6 +519,69 @@ body {
   color: white;
 }
 
+
+.modal-choose {
+  width: 100%;
+  height: 100%;
+  font-family: 'Roboto', sans-serif;
+}
+
+.modal-choose-header {
+  height: 40px;
+  width: 100%;
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.modal-choose-close {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 8px;
+  background-color: rgb(255, 255, 255);
+  border: 0.8px solid rgb(199, 199, 199);
+  font-weight: 700;
+  border-radius: 50%;
+}
+
+.modal-choose-icon-close {
+  width: 14px;
+  height: 14px;
+}
+
+.modal-choose-content {
+  padding: 0 24px 24px 24px;
+}
+
+.modal-choose-title {
+  text-align: center;
+  margin-bottom: 32px;
+  font-size: 20px;
+  margin-top: 0;
+}
+
+.modal-choose-option {
+  width: fit-content;
+  margin-bottom: 8px;
+  font-size: 18px;
+  cursor: pointer;
+}
+.modal-choose-button {
+  width: 100%;
+  height: 100%;
+  margin-top: 24px;
+  background-color: #025f9a;
+  padding: 12px 0;
+  border: none;
+  border-radius: 3px;
+  color: white;
+}
+
 .modal {
   width: 100%;
   height: 100%;
@@ -422,7 +590,7 @@ body {
 .modal-header {
   height: 40px;
   width: 100%;
-  background-color: #06125c;
+  background-color: #025f9a;
   position: relative;
   display: flex;
   justify-content: flex-end;
@@ -441,6 +609,11 @@ body {
   border: 0.8px solid rgb(199, 199, 199);
   font-weight: 700;
   border-radius: 50%;
+}
+
+.modal-icon-close {
+  width: 14px;
+  height: 14px;
 }
 
 .modal-content {
@@ -486,7 +659,7 @@ body {
 
 .modal-delete-title {
   text-align: center;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', sans-serif;
   margin-top: 0;
   margin-bottom: 16px;
 }
@@ -511,11 +684,12 @@ body {
   height: 36px;
   margin: 16px 0;
   box-sizing: border-box;
-  background-color: #06125c;
+  background-color: #025f9a;
   color: white;
   border: none;
   cursor: pointer;
   border-radius: 3px;
+  font-family: 'Roboto', sans-serif;
 }
 
 @media only screen and (max-width: 1440px) {
@@ -524,7 +698,6 @@ body {
     height: 100%;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 48px;
   }
 }
 
@@ -534,7 +707,6 @@ body {
     height: 100%;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 48px;
   }
 }
 
@@ -543,10 +715,21 @@ body {
     padding: 24px 24px 64px 24px;
   }
 
+  .board-banner {
+    display: none;
+  }
+
   .board-title {
     font-size: 28px;
     font-weight: 600;
     margin-bottom: 24px;
+  }
+
+  .board-wall {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    box-sizing: border-box;
   }
   
   .board-option {
@@ -564,7 +747,6 @@ body {
     height: 100%;
     display: grid;
     grid-template-columns: repeat(1, 1fr);
-    gap: 48px;
   }
 
   .board-button {

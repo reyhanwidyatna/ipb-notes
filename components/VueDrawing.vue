@@ -133,10 +133,7 @@ export default {
 </script>
 
 <style>
-.canvas {
-  display: flex;
-  flex-direction: column;
-}
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
 .canvas-action {
   height: 100%;
@@ -171,6 +168,7 @@ export default {
   font-size: 16px;
   margin-right: 4px;
   background-color: red;
+  font-family: 'Roboto', sans-serif;
 }
 
 .canvas-save {
@@ -181,5 +179,6 @@ export default {
   cursor: pointer;
   font-size: 16px;
   background-color: green;
+  font-family: 'Roboto', sans-serif;
 }
 </style>

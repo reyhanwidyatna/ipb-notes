@@ -4,7 +4,7 @@ export default {
   ssr: false,
 
   head: {
-    title: 'ipb-notes',
+    title: 'IPB Notes',
     htmlAttrs: {
       lang: 'en',
     },
