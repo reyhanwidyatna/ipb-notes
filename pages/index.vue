@@ -1,21 +1,5 @@
 <template>
   <div class="board">
-    <div class="board-banner">
-      <div class="board-navbar">
-        <div>
-          <img class="board-banner-logo" src="~assets/png/museum-logo.png" />
-        </div>
-        <a class="board-redirect" href="https://museum.ipb.ac.id/">
-          Kunjungi Museum
-        </a>
-      </div>
-      <p class="board-banner-title">
-        Museum dan Galeri IPB
-      </p>
-      <p class="board-banner-subtitle">
-        "Mari berbagi kenangan tak terlupakanmu di Museum dan Galeri IPB. Yuk, tuliskan ceritamu di sini"
-      </p>
-    </div>
     <div class="board-wall">
       <div class="board-option">
         <h3 class="board-title">
@@ -184,8 +168,8 @@ export default {
       accessToken: 'ipbnotes1963',
       deletedIndex: -1,
       options: [
-        { name: 'Text', value: 'text' },
-        { name: 'Draw', value: 'draw' },
+        { name: 'Teks', value: 'text' },
+        { name: 'Gambar', value: 'draw' },
       ],
       selectedOption: 'text'
     }
@@ -332,27 +316,11 @@ body {
   box-sizing: border-box;
 }
 
-.board-navbar {
+.board-wall {
   width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 36px 48px;
+  height: 100%;
+  padding: 32px 64px;
   box-sizing: border-box;
-  background-color: transparent;
-}
-
-.board-redirect {
-  font-size: 20px;
-  text-decoration: none;
-  color: white;
-  font-weight: 600;
-  border-bottom: 3px solid white;
-}
-
-.board-banner {
-  width: 100%;
-  height: 50vh;
   background-image:
     linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.8)),
     url('~assets/jpg/museum-background.jpg');
@@ -361,34 +329,10 @@ body {
   background-position: center;
 }
 
-
-.board-banner-title {
-  font-size: 64px;
-  font-weight: 700;
-  text-align: center;
-  color: white;
-  margin: 36px 0 0 0;
-}
-
-.board-banner-subtitle {
-  font-size: 32px;
-  font-weight: 500;
-  text-align: center;
-  color: white;
-  margin: 0;
-  padding: 0 16px;
-}
-
-.board-wall {
-  width: 100%;
-  height: 100%;
-  padding: 32px 64px;
-  box-sizing: border-box;
-}
-
 .board-title {
   font-size: 32px;
-  font-weight: 600;
+  font-weight: 700;
+  color: white;
   margin: 0;
 }
 
