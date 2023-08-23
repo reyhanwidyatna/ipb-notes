@@ -1,8 +1,5 @@
 export const state = () => ({
-  notes: [{
-    description: "",
-    createdAt: new Date(),
-  }]
+  notes: []
 })
 
 export const mutations = {
