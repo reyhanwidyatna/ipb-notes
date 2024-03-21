@@ -13,34 +13,29 @@
       </h3>
     </div>
     <div class="survey-content">
-      <div class="survey-button" :class="{ active: activeButton === 1 }" @click="toggleActive(1)">
+      <div class="survey-button" @click="submitFeedback(1)">
         <img class="survey-icon" src="~assets/png/angry.png" />
         <p class="survey-button-title">
           Sangat Tidak Puas
         </p>
       </div>
-      <div class="survey-button" :class="{ active: activeButton === 2 }" @click="toggleActive(2)">
+      <div class="survey-button" @click="submitFeedback(2)">
         <img class="survey-icon" src="~assets/png/pensive.png" />
         <p class="survey-button-title">
           Tidak Puas
         </p>
       </div>
-      <div class="survey-button" :class="{ active: activeButton === 3 }" @click="toggleActive(3)">
+      <div class="survey-button" @click="submitFeedback(3)">
         <img class="survey-icon" src="~assets/png/happy.png" />
         <p class="survey-button-title">
           Puas
         </p>
       </div>
-      <div class="survey-button" :class="{ active: activeButton === 4 }" @click="toggleActive(4)">
+      <div class="survey-button" @click="submitFeedback(4)">
         <img class="survey-icon" src="~assets/png/laughing.png" />
         <p class="survey-button-title">
           Sangat Puas
         </p>
-      </div>
-    </div>
-    <div v-if="activeButton !== null" class="survey-send">
-      <div class="survey-send-button" @click="submitFeedback">
-        Kirim Survey
       </div>
     </div>
   </div>
@@ -50,39 +45,27 @@
 import axios from 'axios';
 
 export default {
-  data() {
-    return {
-      activeButton: null
-    };
-  },
   methods: {
-    toggleActive(buttonIndex) {
-      this.activeButton = buttonIndex === this.activeButton ? null : buttonIndex;
-    },
-    async submitFeedback() {
-      if (!this.activeButton) return;
-
+    async submitFeedback(data) {
       const feedbackData = {
-        satisfaction_level: this.activeButton,
-        text: this.getFeedbackText(this.activeButton)
+        satisfaction_level: data,
+        text: this.getFeedbackText(data)
       };
 
       const res = await axios.post('https://api-museum.ipb.ac.id/api/surveys', feedbackData)
       if (res.data.status === 'success') {
         await this.$swal({
           icon: 'success',
-          title: res.data.message,
+          title: 'Terima Kasih Atas Partisipasi Anda',
           showConfirmButton: false,
-          timer: 2500
+          timer: 2000
         })
-        this.activeButton = null;
-        location.reload()
       } else {
         await this.$swal({
           icon: 'error',
           title: res.data.message,
           showConfirmButton: false,
-          timer: 2500
+          timer: 2000
         })
       }
     },
@@ -110,6 +93,11 @@ body {
   margin: 0;
 }
 
+.swal2-popup {
+  font-size: 1.4rem !important;
+  font-family: 'Lato', sans-serif;
+}
+
 .survey {
   width: 100%;
   height: 100vh;
@@ -126,7 +114,7 @@ body {
 }
 
 .survey-header {
-  margin: 64px 0;
+  margin: 84px 0;
 }
 
 .survey-title {
@@ -184,25 +172,6 @@ body {
   height: 148px;
 }
 
-.survey-send {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 64px;
-}
-
-.survey-send-button {
-  width: fit-content;
-  font-family: 'Lato', sans-serif;
-  background-color: #3A468F;
-  color: #ffffff;
-  font-size: 18px;
-  padding: 8px 16px;
-  border-radius: 5px;
-  font-weight: 700;
-  cursor: pointer;
-}
 
 @media only screen and (max-width: 1440px) {
   .survey-content {
