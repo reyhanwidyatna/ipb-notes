@@ -1,10 +1,9 @@
 <template>
   <div class="survey">
-    <div class="survey-navbar">
-      <img src="~assets/png/museum-logo.png" />
-      <div />
-    </div>
     <div class="survey-header">
+      <div class="survey-navbar">
+        <img src="~assets/png/museum-logo.png" />
+      </div>
       <h1 class="survey-title">
         Mohon Penilaian Terhadap Layanan Kami
       </h1>
@@ -38,6 +37,16 @@
         </p>
       </div>
     </div>
+    <div class="survey-datetime">
+      <div class="survey-datetime-text">
+        <p class="survey-datetime-time">
+          {{ currentTime }}
+        </p>
+        <p class="survey-datetime-date">
+          {{ currentDate }}
+        </p>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -45,7 +54,41 @@
 import axios from 'axios';
 
 export default {
+  data() {
+    return {
+      currentTime: this.getCurrentTime(),
+      currentDate: this.getCurrentDate()
+    };
+  },
+  mounted() {
+    setInterval(() => {
+      this.currentTime = this.getCurrentTime();
+      this.currentDate = this.getCurrentDate();
+    }, 1000);
+  },
   methods: {
+    getCurrentTime() {
+      const now = new Date();
+      const timeOptions = {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      };
+
+      const formattedTime = now.toLocaleTimeString('en-US', timeOptions);
+      return `${formattedTime}`;
+    },
+    getCurrentDate() {
+      const now = new Date();
+      const dateOptions = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      };
+
+      const formattedDate = now.toLocaleDateString('id-ID', dateOptions);
+      return `${formattedDate}`;
+    },
     async submitFeedback(data) {
       const feedbackData = {
         satisfaction_level: data,
@@ -105,16 +148,17 @@ body {
 }
 
 .survey-navbar {
-  display: flex;
-  justify-content: space-around;
+  max-width: 1080px;
+  margin: 0 auto;
   color: #ffffff;
   font-size: 28px;
   font-family: 'Lato', sans-serif;
-  padding: 16px;
+  padding: 16px 0;
 }
 
 .survey-header {
-  margin: 84px 0;
+  max-width: fit-content;
+  margin: 0 auto 72px auto;
 }
 
 .survey-title {
@@ -123,7 +167,7 @@ body {
   color: #3A468F;
   font-size: 32px;
   font-weight: 900;
-  margin: 0;
+  margin: 64px 0 0 0;
 }
 
 .survey-subtitle {
@@ -172,6 +216,36 @@ body {
   height: 148px;
 }
 
+.survey-datetime {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.survey-datetime-text {
+  margin-top: 48px;
+  padding: 24px 48px;
+  border-radius: 80px;
+  background-color: #f3f3f3;
+}
+
+.survey-datetime-time {
+  font-family: 'Lato', sans-serif;
+  color: #3A468F;
+  font-size: 40px;
+  font-weight: 900;
+  margin: 0;
+}
+
+.survey-datetime-date {
+  font-family: 'Lato', sans-serif;
+  color: #3A468F;
+  font-size: 20px;
+  text-align: center;
+  font-weight: 700;
+  margin: 0;
+  margin-top: 8px;
+}
 
 @media only screen and (max-width: 1440px) {
   .survey-content {
@@ -194,7 +268,6 @@ body {
     margin: 0 auto;
   }
 }
-
 
 @media only screen and (max-width: 768px) {
   .survey-content {
