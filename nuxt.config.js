@@ -36,7 +36,9 @@ export default {
     '@nuxtjs/eslint-module',
   ],
 
-  modules: [],
+  modules: [
+    'vue-sweetalert2/nuxt'
+  ],
 
   build: {},
 }
