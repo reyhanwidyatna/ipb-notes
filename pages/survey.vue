@@ -14,25 +14,25 @@
     </div>
     <div class="survey-content">
       <div class="survey-button" :class="{ active: activeButton === 1 }" @click="toggleActive(1)">
-        <img class="survey-icon" src="/angry.png" />
+        <img class="survey-icon" src="~assets/png/angry.png" />
         <p class="survey-button-title">
           Sangat Tidak Puas
         </p>
       </div>
       <div class="survey-button" :class="{ active: activeButton === 2 }" @click="toggleActive(2)">
-        <img class="survey-icon" src="/pensive.png" />
+        <img class="survey-icon" src="~assets/png/pensive.png" />
         <p class="survey-button-title">
           Tidak Puas
         </p>
       </div>
       <div class="survey-button" :class="{ active: activeButton === 3 }" @click="toggleActive(3)">
-        <img class="survey-icon" src="/happy.png" />
+        <img class="survey-icon" src="~assets/png/happy.png" />
         <p class="survey-button-title">
           Puas
         </p>
       </div>
       <div class="survey-button" :class="{ active: activeButton === 4 }" @click="toggleActive(4)">
-        <img class="survey-icon" src="/laughing.png" />
+        <img class="survey-icon" src="~assets/png/laughing.png" />
         <p class="survey-button-title">
           Sangat Puas
         </p>
